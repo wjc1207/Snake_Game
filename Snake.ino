@@ -41,17 +41,17 @@ void setup() {
   delay(2000);         // wait for initializing
   oled.clearDisplay(); // clear display
 
-  Position[0][0] = 6;  //snake original positions
-  Position[0][1] = 3;
-  Position[1][0] = 5;
-  Position[1][1] = 3;
-  Position[2][0] = 4;
-  Position[2][1] = 3;
-  Position[3][0] = 3;
-  Position[3][1] = 3;
+  Position[0][XDIM] = 6;  //snake original positions
+  Position[0][YDIM] = 3;
+  Position[1][XDIM] = 5;
+  Position[1][YDIM] = 3;
+  Position[2][XDIM] = 4;
+  Position[2][YDIM] = 3;
+  Position[3][XDIM] = 3;
+  Position[3][YDIM] = 3;
 
-  velocity[0] = 1; //snake original velocity
-  velocity[1] = 0;
+  velocity[XDIM] = 1; //snake original velocity
+  velocity[YDIM] = 0;
 
   Length = 4;
 }
@@ -101,11 +101,11 @@ void generateFood()
   {
     bool overlap = false;
     randomSeed(analogRead(RANDOMSEED));
-    food[0] = random(0, (32 - OFFSETX / 4));
-    food[1] = random(0, 16);
+    food[XDIM] = random(0, (32 - OFFSETX / 4));
+    food[YDIM] = random(0, 16);
     for (int i = Length - 1; i >= 0; i = i - 1)
     {
-      if (Position[i][0] == food[0] and Position[i][1] == food[1])
+      if (Position[i][XDIM] == food[XDIM] and Position[i][YDIM] == food[YDIM])
       {
         overlap = true;
         break;
@@ -117,7 +117,7 @@ void generateFood()
       break;
     }
   }
-  drawCircle4X(food[0], food[1], OFFSETX);
+  drawCircle4X(food[XDIM], food[YDIM], OFFSETX);
 }
 
 void(* resetFunc) (void) = 0; //reset the board
@@ -153,13 +153,13 @@ void getNextPosition()
   }
   else
   {
-    nextPosition[0] = Position[0][0] + velocity[0]; //x' = x + delta(x)
-    nextPosition[1] = Position[0][1] + velocity[1]; //y' = y + delta(y)
+    nextPosition[XDIM] = Position[0][XDIM] + velocity[XDIM]; //x' = x + delta(x)
+    nextPosition[YDIM] = Position[0][YDIM] + velocity[YDIM]; //y' = y + delta(y)
   }
 }
 void eatFood()
 {
-  if ((nextPosition[0] == food[0]) and (nextPosition[1] == food[1]))  //eat
+  if ((nextPosition[XDIM] == food[XDIM]) and (nextPosition[YDIM] == food[YDIM]))  //eat
   {
     Length = Length + 1;
     score = score + 1;
@@ -172,12 +172,12 @@ void snakeMove()
   {
     if (i == 0)
     {
-      Position[0][0] = nextPosition[0];
-      Position[0][1] = nextPosition[1];
+      Position[0][XDIM] = nextPosition[XDIM];
+      Position[0][YDIM] = nextPosition[YDIM];
     }
     else
     {
-      if (((Position[0][0] + velocity[0]) == Position[i][0]) and ((Position[0][1] + velocity[1]) == Position[i][1])) //collision detection
+      if ((nextPosition[XDIM] == Position[i][XDIM]) and (nextPosition[YDIM] == Position[i][YDIM])) //collision detection
       {
         oled.setCursor(OFFSETX + 19, 29);
         oled.setTextSize(1);
@@ -186,33 +186,33 @@ void snakeMove()
         delay(100);
         resetFunc();
       }
-      Position[i][0] = Position[i - 1][0];
-      Position[i][1] = Position[i - 1][1];
+      Position[i][XDIM] = Position[i - 1][XDIM];
+      Position[i][YDIM] = Position[i - 1][YDIM];
     }
-    drawPixel4X(Position[i][0], Position[i][1], OFFSETX);
+    drawPixel4X(Position[i][XDIM], Position[i][YDIM], OFFSETX);
   }
 }
 void control()
 {
-  if (analogRead(JOYSTICKX) > 800 and velocity[1] == 0)
+  if (analogRead(JOYSTICKX) > 800 and velocity[YDIM] == 0)
   {
-    velocity[0] = 0;
-    velocity[1] = -1;
+    velocity[XDIM] = 0;
+    velocity[YDIM] = -1;
   }
-  else if (analogRead(JOYSTICKY) < 200 and velocity[0] == 0)
+  else if (analogRead(JOYSTICKY) < 200 and velocity[XDIM] == 0)
   {
-    velocity[0] = -1;
-    velocity[1] = 0;
+    velocity[XDIM] = -1;
+    velocity[YDIM] = 0;
   }
-  else if (analogRead(JOYSTICKX) < 200 and velocity[1] == 0)
+  else if (analogRead(JOYSTICKX) < 200 and velocity[YDIM] == 0)
   {
-    velocity[0] = 0;
-    velocity[1] = 1;
+    velocity[XDIM] = 0;
+    velocity[YDIM] = 1;
   }
-  else if (analogRead(JOYSTICKY) > 800 and velocity[0] == 0)
+  else if (analogRead(JOYSTICKY) > 800 and velocity[XDIM] == 0)
   {
-    velocity[0] = 1;
-    velocity[1] = 0;
+    velocity[XDIM] = 1;
+    velocity[YDIM] = 0;
   }
 }
 
