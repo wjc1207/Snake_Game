@@ -1,6 +1,10 @@
 //Snake game
 //Author: wjc74751
 //UCL = https://github.com/wjc74751/Snake_Game
+
+// * * * -->move direction
+// 2 1 0
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -8,6 +12,8 @@
 #define SCREEN_WIDTH 128 // OLED display width,  in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define OFFSETX 40
+#define XDIM 0
+#define YDIM 1
 #define RANDOMSEED (0)
 #define JOYSTICKX (1)
 #define JOYSTICKY (2)
@@ -16,6 +22,7 @@
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); //For arduino nano, SDA: A4, SCL: A5
 
 uint8_t Position[100][2];
+uint8_t nextPosition[2];
 int velocity[2];
 uint8_t Length;
 uint8_t food[2];
@@ -122,9 +129,37 @@ void showScore()
   oled.println(F("Score: ")); //show score
   oled.println(score);
 }
+void getNextPosition()
+{
+  if ((Position[0][XDIM] + velocity[XDIM]) == (32 - OFFSETX / 4))
+  {
+    nextPosition[XDIM] = 0;
+    nextPosition[YDIM] = Position[0][1];
+  }
+  else if ((Position[0][XDIM] + velocity[XDIM]) == -1)
+  {
+    nextPosition[XDIM] = (31 - OFFSETX / 4);
+    nextPosition[YDIM] = Position[0][1];
+  }
+  else if ((Position[0][YDIM] + velocity[YDIM]) == -1)
+  {
+    nextPosition[XDIM] = Position[0][0];
+    nextPosition[YDIM] = 15;
+  }
+  else if ((Position[0][YDIM] + velocity[YDIM]) == 16)
+  {
+    nextPosition[XDIM] = Position[0][0];
+    nextPosition[YDIM] = 0;
+  }
+  else
+  {
+    nextPosition[0] = Position[0][0] + velocity[0]; //x' = x + delta(x)
+    nextPosition[1] = Position[0][1] + velocity[1]; //y' = y + delta(y)
+  }
+}
 void eatFood()
 {
-  if (((Position[0][0] + velocity[0]) == food[0]) and ((Position[0][1] + velocity[1]) == food[1]))  //eat
+  if ((nextPosition[0] == food[0]) and (nextPosition[1] == food[1]))  //eat
   {
     Length = Length + 1;
     score = score + 1;
@@ -137,19 +172,8 @@ void snakeMove()
   {
     if (i == 0)
     {
-      if ((Position[i][0] + velocity[0]) == (32 - OFFSETX / 4))
-        Position[i][0] = 0;
-      else if ((Position[i][0] + velocity[0]) == -1)
-        Position[i][0] = (31 - OFFSETX / 4);
-      else if ((Position[i][1] + velocity[1]) == -1)
-        Position[i][1] = 15;
-      else if ((Position[i][1] + velocity[1]) == 16)
-        Position[i][1] = 0;
-      else
-      {
-        Position[i][0] = Position[i][0] + velocity[0]; //x' = x + delta(x)
-        Position[i][1] = Position[i][1] + velocity[1]; //y' = y + delta(y)
-      }
+      Position[0][0] = nextPosition[0];
+      Position[0][1] = nextPosition[1];
     }
     else
     {
@@ -200,6 +224,8 @@ void loop() {
   drawBorder();
 
   generateFood(); //generate food
+
+  getNextPosition();
 
   eatFood(); //eat food
 
